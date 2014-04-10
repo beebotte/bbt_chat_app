@@ -4,8 +4,8 @@ var path = require('path');
 var bbt = require('beebotte');
 var bclient = new bbt.Connector(
   {
-    keyId: process.env.AKEY, 
-    secretKey: process.env.SKEY,
+    //keyId: process.env.AKEY, 
+    //secretKey: process.env.SKEY,
   });
 
 //Logging format - respect Apache's log format
@@ -18,6 +18,7 @@ app.configure(function() {
   app.use(express.logger(logFormat));
   app.use(express.json());
   app.use(express.urlencoded());
+  app.use(app.router);
 });
 
 app.get( '/auth', function( req, res, next) {

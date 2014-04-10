@@ -1,6 +1,6 @@
 {
     "name": "bbt-chat-demo",
-    "description": "Real time chat demo using Beebotte.",
+    "description": "Real time chat demo of Beebotte.",
     "version": "0.1.0",
     "author": "Beebotte <bwehbi@beebotte.com>",
     "homepage": "http://beebotte.com",
@@ -8,7 +8,7 @@
         "node": ">=0.8"
     },
     "dependencies": {
-        "express": "*",
+        "express": "3.*",
         "beebotte": "*"
     }
 }
