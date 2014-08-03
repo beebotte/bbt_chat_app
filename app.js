@@ -22,33 +22,20 @@ app.configure(function() {
 });
 
 app.get( '/auth', function( req, res, next) {
-  var device = req.query.device,
-  service = req.query.service || '*',
+  var channel = req.query.channel,
   resource = req.query.resource || '*',
   ttl = req.query.ttl || 0,
   read = req.query.read || false,
   write = req.query.write || false,
   sid = req.query.sid;
-  if( !sid || !device ) return res.status(403).send('Unauthorized');
-  
-  var to_sign = sid + ':' + device + '.' + service + '.' + resource + ':ttl=' + ttl + ':read=' + read + ':write=' + write;
-  
+  if( !sid || !channel ) return res.status(403).send('Unauthorized');
+
+  var to_sign = sid + ':' + channel + '.' + resource + ':ttl=' + ttl + ':read=' + read + ':write=' + write;
+
   var auth = bclient.sign( to_sign );
   console.log(to_sign);
   console.log(auth);
   return res.send( auth );
 } );
-
-app.post( '/chat', function( req, res, next ) {
-  console.log(req.body.msg.length);
-  if( !req.body.msg ) return next(new Error('Bad Request').http_code(400));
-  var src = req.body.src || 'anonymous';
-  bclient.sendEvent({channel: 'bbt_chat_demo', event: 'msg', data: {src: src, msg: req.body.msg}}, function(err, res) {
-    if(err) console.log(err);
-    console.log(res);
-  });
-  res.send( 'true' );
-
-});
 
 app.listen( process.env.PORT || 8000 ); 
