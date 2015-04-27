@@ -1,145 +1,194 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <title>Beebotte Chat demo</title>
-  <link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.socket.io/socket.io-1.1.0.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
-  <script src="//beebotte.com/bbt.js"></script>
-<style>
-.module {
-  margin: 0px 0px;
-}
-#doc ::-webkit-scrollbar{width:3px;height:9px;}
-#doc ::-webkit-scrollbar-button:start:decrement,#doc ::-webkit-scrollbar-button:end:increment{display:block;height:0;background-color:transparent;}
-#doc ::-webkit-scrollbar-track-piece{background-color:#FAFAFA;-webkit-border-radius:0;-webkit-border-bottom-right-radius:8px;-webkit-border-bottom-left-radius:8px;}
-#doc ::-webkit-scrollbar-thumb:vertical{height:50px;background-color:#540000;-webkit-border-radius:8px;}
-#doc ::-webkit-scrollbar-thumb:horizontal{width:3px;background-color:#999;-webkit-border-radius:8px;}
--webkit-scrollbar{width:2px;height:9px;}
-/*::-webkit-scrollbar-button:start:decrement,#doc ::-webkit-scrollbar-button:end:increment{display:block;height:0;background-color:transparent;}
-#doc ::-webkit-scrollbar-track-piece{background-color:#FAFAFA;-webkit-border-radius:0;-webkit-border-bottom-right-radius:1px;-webkit-border-bottom-left-radius:1px;}*/
-#doc ::-webkit-scrollbar-thumb:vertical{height:50px;background-color:#999;-webkit-border-radius:1px;}
-#doc ::-webkit-scrollbar-thumb:horizontal{width:2px;background-color:#999;-webkit-border-radius:1px;}
-
-</style>
-</head>
-
-<body>
-    <div class="col-sm-12" style="padding: 0px 0px; height: 100%" id="page">
-      <a href="https://github.com/beebotte/bbt_chat_app"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
-      <div class="panel panel-default module">
-        <div class="panel-heading">
-          <div class="row">
-            <div class="col-xs-6">
-              <input id="src" type="text" name="src" input="input" class="form-control" placeholder="Nickname"/>
-            </div>
-            <div class="col-xs-2">
-              <button id="connect" onclick="return false;" class="btn btn-info pull-right">Connect</button>
-            </div>
-          </div>
-        </div>
-        <div class="panel-body" style="border-bottom-style:solid;">
-          <strong id="presence">Participants: </strong>
-        </div>
-        <div id="doc">
-          <ul style="overflow:scroll; margin: 0px;" class="list-group" id="content">
-        </div>
-        </ul>
-        <div class="panel-footer">
-          <div class="row">
-            <div class="col-xs-12">
-              <input id="msg" type="text" name="msg" input="input" class="form-control" placeholder="Type message and press Enter"/>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-<script>
-    $(document).ready(function() {
-        var connected = false;
-        $('#msg').prop('disabled', true);
-        var bbt = null;
-        $('#src').keypress(function (e) {
-          if (e.which == 13) {
-            processConnect();
-          }
-        });
-        $('#connect').click(function () {
-          processConnect();
-        });
-
-        function processConnect() {
-          if(connected) {
-            bbt.disconnect();
-            $('#connect').text('Connect');
-            $('#src').prop('disabled', false);
-            $('#msg').val('');
-            $('#msg').prop('disabled', true);
-            $('#presence').html('Participants: ');
-            $('#constent').html('');
-            connected = false;
-          }else {
-            if(! $('#src').val() ) return alert('You must set a username');
-            if(! bbt) {
-              bbt = new BBT(ACCESS_KEY, {auth_endpoint: '/auth', username: $('#src').val()});
-              $('#msg').keypress(function (e) {
-                if (e.which == 13) {
-                  if($('#msg').val() != ""){
-                    bbt.publish({channel: 'chat_demo', resource: 'chat_msg'}, {src: $('#src').val() || 'anonymous', msg: $('#msg').val()});
-                    $('#msg').val('');
-                  }
-                }
-              });
-            }else {
-              bbt.setUsername($('#src').val());
-              bbt.connect();
+    <head>
+        <meta charset="UTF-8">
+        <title>Beebotte Chat demo</title>
+        <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+        <script src="//cdn.socket.io/socket.io-1.1.0.js"></script>
+        <script src="//beebotte.com/bbt.js"></script>
+        <style>
+            .module {
+                margin: 0px 0px;
             }
-            connected = true;
-            $('#src').prop('disabled', true);
-            $('#msg').val('');
-            $('#msg').prop('disabled', false);
-            $('#connect').text('Disconnect');
-            var content = $('#content');
-  
-            bbt.subscribe( {channel: 'presence-chat_demo', resource: 'chat_msg'}, function(message){
-              if((message.data.event === 'join' || message.data.event === 'connected')) {
-                if(!$('#' + message.data.id).length) {
-                  $('#presence').append('<span id="' + message.data.id + '" class="label label-success" style="margin: 0px 5px;">' + message.data.userinfo.username || message.data.id + '</span>');
+            #doc ::-webkit-scrollbar {
+                width:3px;
+                height:9px;
+            }
+            #doc ::-webkit-scrollbar-button:start:decrement, #doc ::-webkit-scrollbar-button:end:increment {
+                display:block;
+                height:0;
+                background-color:transparent;
+            }
+            #doc ::-webkit-scrollbar-track-piece {
+                background-color:#FAFAFA;
+                -webkit-border-radius:0;
+                -webkit-border-bottom-right-radius:8px;
+                -webkit-border-bottom-left-radius:8px;
+            }
+            #doc ::-webkit-scrollbar-thumb:vertical {
+                height:50px;
+                background-color:#540000;
+                -webkit-border-radius:8px;
+            }
+            #doc ::-webkit-scrollbar-thumb:horizontal {
+                width:3px;
+                background-color:#999;
+                -webkit-border-radius:8px;
+            }
+            -webkit-scrollbar {
+                width:2px;
+                height:9px;
+            }
+            /*::-webkit-scrollbar-button:start:decrement,#doc ::-webkit-scrollbar-button:end:increment{display:block;height:0;background-color:transparent;}
+#doc ::-webkit-scrollbar-track-piece{background-color:#FAFAFA;-webkit-border-radius:0;-webkit-border-bottom-right-radius:1px;-webkit-border-bottom-left-radius:1px;}*/
+            #doc ::-webkit-scrollbar-thumb:vertical {
+                height:50px;
+                background-color:#999;
+                -webkit-border-radius:1px;
+            }
+            #doc ::-webkit-scrollbar-thumb:horizontal {
+                width:2px;
+                background-color:#999;
+                -webkit-border-radius:1px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="col-sm-12" style="padding: 0px 0px; height: 100%" id="page">
+            <div class="panel panel-default module">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-8">
+                            <input id="src" type="text" name="src" input="input" class="form-control" placeholder="Nickname" />
+                        </div>
+                        <div class="col-xs-4">
+                            <button id="connect" onclick="return false;" class="btn btn-info pull-right">Connect</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-body" style="border-bottom-style:solid;"> <strong id="presence">Participants: </strong>
+
+                </div>
+                <div id="doc">
+                    <ul style="overflow:scroll; margin: 0px;" class="list-group" id="content">
+                </div>
+                </ul>
+                <div class="panel-footer">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <input id="msg" type="text" name="msg" input="input" class="form-control" placeholder="Type message and press Enter" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            var bbt = null;
+            var channel  = 'chat_app';
+            var resource = 'myroom';
+            var keyId = 'YOUR_ACCESS_KEY';
+            $(document).ready(function() {
+                var connected = false;
+                $('#msg').prop('disabled', true);
+                $('#src').keypress(function(e) {
+                    if (e.which == 13) {
+                        processConnect();
+                    }
+                });
+                $('#connect').click(function() {
+                    processConnect();
+                });
+
+                function processConnect() {
+                    if (connected) {
+                        bbt.disconnect();
+                        $('#connect').text('Connect');
+                        $('#src').prop('disabled', false);
+                        $('#msg').val('');
+                        $('#msg').prop('disabled', true);
+                        $('#presence').html('Participants: ');
+                        $('#constent').html('');
+                        connected = false;
+                    } else {
+                        if (!$('#src').val()) return alert('You must set a username');
+                        if (!bbt) {
+                            bbt = new BBT(keyId, {
+                                host: 'beebotte.com', //this is the default
+                                ws_host: 'beebotte.com', //this is the default
+                                ssl: true,
+                                sport: 443,
+                                auth_endpoint: '/auth',
+                                username: $('#src').val()
+                            });
+                            $('#msg').keypress(function(e) {
+                                if (e.which == 13) {
+                                    if ($('#msg').val() != "") {
+                                        bbt.publish({
+                                            channel: channel,
+                                            resource: resource
+                                        }, {
+                                            src: $('#src').val() || 'anonymous',
+                                            msg: $('#msg').val()
+                                        });
+                                        $('#msg').val('');
+                                    }
+                                }
+                            });
+                        } else {
+                            bbt.setUsername($('#src').val());
+                            bbt.connect();
+                        }
+                        connected = true;
+                        $('#src').prop('disabled', true);
+                        $('#msg').val('');
+                        $('#msg').prop('disabled', false);
+                        $('#connect').text('Disconnect');
+                        var content = $('#content');
+
+                        bbt.subscribe({
+                            channel: 'presence-' + channel,
+                            resource: resource
+                        }, function(message) {
+                            if ((message.data.event === 'join' || message.data.event === 'connected')) {
+                                if (!$('#' + message.data.id).length) {
+                                    $('#presence').append('<span id="' + message.data.id + '" class="label label-success" style="margin: 0px 5px;">' + message.data.userinfo.username || message.data.id + '</span>');
+                                }
+                            } else if (message.data.event === 'leave') {
+                                if ($('#' + message.data.id).length) {
+                                    $('#' + message.data.id).remove();
+                                }
+                            }
+                        });
+
+                        bbt.subscribe({
+                            channel: channel,
+                            resource: resource,
+                            read: true,
+                            write: true
+                        }, function(message) {
+                            var src = 'other';
+                            content.append('<li class="list-group-item ' + src + '"><span class="label label-default">' + message.data.src + '</span> ' + message.data.msg + '</li>');
+                            var objDiv = document.getElementById("content");
+                            objDiv.scrollTop = objDiv.scrollHeight;
+                        });
+                    }
+                };
+
+                function doLayout() {
+                    /*
+                     * This forces layout of the page so that the content gets a chance
+                     * make itself smaller when the browser window shrinks.
+                     */
+                    $("#content").height("0px");
+
+                    $("#content").height(($(window).height() - 77 - $(".panel-heading").height() - $(".panel-footer").height() - $(".panel-body").height()) + "px");
                 }
-              }else if(message.data.event === 'leave') {
-                if($('#' + message.data.id).length) {
-                  $('#' + message.data.id).remove();
-                }
-              }
+
+                doLayout();
+                $(window).resize(doLayout);
+
             });
-
-            bbt.subscribe( {channel: 'chat_demo', resource: 'chat_msg', read: true, write: true}, function(message){
-              //console.log(message);
-              var src = 'other';
-              //if(message.data.src === $('#src').val()) src = 'self';
-              content.append('<li class="list-group-item ' + src + '"><span class="label label-default">' + message.data.src + '</span> ' + message.data.msg + '</li>');
-              var objDiv = document.getElementById("content");
-              objDiv.scrollTop = objDiv.scrollHeight;
-            });
-          }
-        };
-
-  function doLayout() {
-    /*
-     * This forces layout of the page so that the content gets a chance
-     * make itself smaller when the browser window shrinks.
-     */
-    $("#content").height("0px");
-
-    $("#content").height(($(window).height() - 77 - $(".panel-heading").height() - $(".panel-footer").height() - $(".panel-body").height()) + "px");
-  }
-
-  doLayout();
-  $(window).resize(doLayout);
-
-    });
-</script>
-</body>
+        </script>
+    </body>
 </html>
-                 
