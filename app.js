@@ -1,25 +1,20 @@
 ﻿var express = require( 'express' );
 var path = require('path');
+var morgan = require('morgan')
+var serveStatic = require('serve-static')
 
 var bbt = require('beebotte');
 var bclient = new bbt.Connector(
-  {
-    //keyId: process.env.AKEY, 
-    //secretKey: process.env.SKEY,
-  });
-
-//Logging format - respect Apache's log format
-var logFormat =  ':remote-addr - - [:date] ":method :url HTTP/:http-version" :status :res[content-length] :response-time ms ":referrer" ":user-agent"'
+{
+  //Don't forget to provide you access keys!
+  keyId: process.env.keyId,
+  secretKey: process.env.secretKey,
+});
 
 var app = express();
 
-app.configure(function() {
-  app.use(express.static(path.join(__dirname, 'client')));
-  app.use(express.logger(logFormat));
-  app.use(express.json());
-  app.use(express.urlencoded());
-  app.use(app.router);
-});
+app.use(morgan('combined'))
+app.use(serveStatic(__dirname + '/client', {'index': ['chat.html']}))
 
 app.get( '/auth', function( req, res, next) {
   var channel = req.query.channel,
@@ -38,4 +33,4 @@ app.get( '/auth', function( req, res, next) {
   return res.send( auth );
 } );
 
-app.listen( process.env.PORT || 8000 ); 
+app.listen( process.env.PORT || 8080 ); 
