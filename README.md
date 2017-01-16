@@ -11,6 +11,6 @@ To test the application:
   - You can open it in different windows/tabs to see the multi user chat
 
 ## License
-Copyright 2013 - 2014 Beebotte.
+Copyright 2013 - 2017 Beebotte.
 
 [The MIT License](http://opensource.org/licenses/MIT)
